@@ -1,5 +1,7 @@
 ## Usage
 
+[![Go Test](https://github.com/harryosmar/http-client-go/actions/workflows/go_test.yml/badge.svg)](https://github.com/harryosmar/http-client-go/actions/workflows/go_test.yml)
+
 ```go
 package main
 
