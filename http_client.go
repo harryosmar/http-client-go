@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 )
 
 //go:generate mockgen -destination=mocks/mock_HttpClientRepository.go -package=mocks . HttpClientRepository
@@ -20,6 +21,7 @@ type (
 		PostFormUrlEncoded(ctx context.Context, url string, payload url.Values, headers map[string]string) (*Response, error)
 		Put(ctx context.Context, url string, payload *bytes.Buffer, headers map[string]string) (*Response, error)
 		Delete(ctx context.Context, url string, headers map[string]string) (*Response, error)
+		DeleteX(ctx context.Context, url string, data any, headers map[string]string) (*Response, error)
 		Get(ctx context.Context, url string, queries map[string][]string, headers map[string]string) (*Response, error)
 	}
 
@@ -29,9 +31,10 @@ type (
 	}
 
 	Response struct {
-		Status  int
-		Content []byte
-		Header  http.Header
+		Status   int
+		Content  []byte
+		Header   http.Header
+		Duration int64 // in millisecond
 	}
 )
 
@@ -108,6 +111,10 @@ func (v httpClientRepository) Delete(ctx context.Context, url string, headers ma
 	)
 }
 
+func (v httpClientRepository) DeleteX(ctx context.Context, url string, data any, headers map[string]string) (*Response, error) {
+	return v.Delete(ctx, url, headers)
+}
+
 func (v httpClientRepository) Get(ctx context.Context, url string, queries map[string][]string, headers map[string]string) (*Response, error) {
 	request, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
@@ -159,7 +166,9 @@ func (v httpClientRepository) do(ctx context.Context, request *http.Request, get
 		v.logRequest(ctx, request, getPayload)
 	}
 
+	start := time.Now().UnixNano() / int64(time.Millisecond)
 	response, err := v.client.Do(request)
+	end := time.Now().UnixNano() / int64(time.Millisecond)
 	if err != nil {
 		return nil, err
 	}
@@ -181,9 +190,10 @@ func (v httpClientRepository) do(ctx context.Context, request *http.Request, get
 	}()
 
 	return &Response{
-		Status:  response.StatusCode,
-		Content: content,
-		Header:  response.Header,
+		Status:   response.StatusCode,
+		Content:  content,
+		Header:   response.Header,
+		Duration: end - start,
 	}, nil
 }
 
