@@ -1,6 +1,5 @@
 ## Usage
 
-[![Go Test](https://github.com/harryosmar/http-client-go/actions/workflows/go_test.yml/badge.svg)](https://github.com/harryosmar/http-client-go/actions/workflows/go_test.yml)
 [![Latest Version](https://img.shields.io/github/release/harryosmar/http-client-go.svg?style=flat-square)](https://github.com/harryosmar/http-client-go/releases)
 
 ```go
@@ -17,11 +16,7 @@ import (
 	v2 "github.com/harryosmar/http-client-go/v2"
 )
 
-func main()  {
-	client := http_client_go.NewHttpClientRepository(&http.Client{
-		Timeout: 3 * time.Second,
-	}).EnableDebug()
-
+func main() {
 	type FactsResponse struct {
 		Status struct {
 			Verified  bool `json:"verified"`
@@ -38,12 +33,10 @@ func main()  {
 
 	resp, err := v2.Get[[]FactsResponse](
 		context.WithValue(context.TODO(), http_client_go.XRequestIdContext, uuid.New().String()),
-		client,
+		http_client_go.NewHttpClientRepository(&http.Client{Timeout: 3 * time.Second}).EnableDebug(),
 		"https://cat-fact.herokuapp.com/facts",
-		nil,
-		map[string]string{
-			"Content-Type": "application/json",
-		},
+		map[string][]string{"limit": {"5"}},
+		map[string]string{"Content-Type": "application/json"},
 	)
 	if err != nil {
 		return nil, err
