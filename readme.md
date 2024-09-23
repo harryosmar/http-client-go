@@ -31,6 +31,7 @@ func main() {
 		Used      bool      `json:"used"`
 	}
 
+	// curl --location 'https://cat-fact.herokuapp.com/facts?limit=5' --header 'Content-Type: application/json'
 	resp, err := v2.Get[[]FactsResponse](
 		context.WithValue(context.TODO(), http_client_go.XRequestIdContext, uuid.New().String()),
 		http_client_go.NewHttpClientRepository(&http.Client{Timeout: 3 * time.Second}).EnableDebug(),
