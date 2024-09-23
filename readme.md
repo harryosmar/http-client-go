@@ -21,7 +21,6 @@ func main()  {
 	client := http_client_go.NewHttpClientRepository(&http.Client{
 		Timeout: 3 * time.Second,
 	}).EnableDebug()
-	ctx := context.WithValue(context.TODO(), http_client_go.XRequestIdContext, uuid.New().String())
 
 	type FactsResponse struct {
 		Status struct {
@@ -38,7 +37,7 @@ func main()  {
 	}
 
 	resp, err := v2.Get[[]FactsResponse](
-		context.TODO(),
+		context.WithValue(context.TODO(), http_client_go.XRequestIdContext, uuid.New().String()),
 		client,
 		"https://cat-fact.herokuapp.com/facts",
 		nil,

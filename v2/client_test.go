@@ -3,6 +3,7 @@ package v2_test
 import (
 	"bufio"
 	"context"
+	"github.com/google/uuid"
 	http_client_go "github.com/harryosmar/http-client-go"
 	v2 "github.com/harryosmar/http-client-go/v2"
 	log "github.com/sirupsen/logrus"
@@ -55,8 +56,9 @@ func TestMethods(t *testing.T) {
 						Deleted   bool      `json:"deleted"`
 						Used      bool      `json:"used"`
 					}
+					ctx := context.WithValue(context.TODO(), http_client_go.XRequestIdContext, uuid.New().String())
 					resp, err := v2.Get[[]FactsResponse](
-						context.TODO(),
+						ctx,
 						client,
 						"https://cat-fact.herokuapp.com/facts",
 						nil,
@@ -95,12 +97,13 @@ func TestMethods(t *testing.T) {
 						}
 					)
 
-					content, err := readImageFile("./example.jpeg")
+					content, err := readImageFile("./example.jpg")
 					if err != nil {
 						return nil, err
 					}
+					ctx := context.WithValue(context.TODO(), http_client_go.XRequestIdContext, uuid.New().String())
 					resp, err := v2.PostRaw[[]FaceDetectHttpClientResponse](
-						context.TODO(),
+						ctx,
 						client,
 						"http://192.168.11.168:5000/detect_faces",
 						content,
