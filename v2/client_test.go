@@ -69,7 +69,7 @@ func TestMethods(t *testing.T) {
 					if err != nil {
 						return nil, err
 					}
-					log.Printf("%+v", resp)
+					log.Infof("%+v", resp)
 					return resp, nil
 				},
 			},
@@ -80,20 +80,16 @@ func TestMethods(t *testing.T) {
 			args: args{
 				fn: func(client http_client_go.HttpClientRepository) (any, error) {
 					type (
-						FaceDetectHttpClientResponseFaceCoordinate struct {
-							Height int `json:"height"`
-							Width  int `json:"width"`
-							X      int `json:"x"`
-							Y      int `json:"y"`
-						}
-
-						FaceDetectHttpClientResponseFace struct {
-							Coordinates  FaceDetectHttpClientResponseFaceCoordinate
-							EyesDetected bool `json:"eyes_detected"`
-						}
-
 						FaceDetectHttpClientResponse struct {
-							Faces []FaceDetectHttpClientResponseFace
+							Faces []struct {
+								Coordinates struct {
+									Height int `json:"height"`
+									Width  int `json:"width"`
+									X      int `json:"x"`
+									Y      int `json:"y"`
+								} `json:"coordinates"`
+								EyesDetected bool `json:"eyes_detected"`
+							} `json:"faces"`
 						}
 					)
 
@@ -102,10 +98,10 @@ func TestMethods(t *testing.T) {
 						return nil, err
 					}
 					ctx := context.WithValue(context.TODO(), http_client_go.XRequestIdContext, uuid.New().String())
-					resp, err := v2.PostRaw[[]FaceDetectHttpClientResponse](
+					resp, err := v2.PostRaw[FaceDetectHttpClientResponse](
 						ctx,
-						client,
-						"http://192.168.11.168:5000/detect_faces",
+						client.DisableDebug(),
+						"http://192.168.11.168:8000/detect_faces",
 						content,
 						map[string]string{
 							"Content-Type": "image/jpeg",
@@ -114,7 +110,7 @@ func TestMethods(t *testing.T) {
 					if err != nil {
 						return nil, err
 					}
-					log.Printf("%+v", resp)
+					log.Infof("%+v", resp)
 					return resp, nil
 				},
 			},
