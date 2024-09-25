@@ -60,7 +60,7 @@ func TestMethods(t *testing.T) {
 					resp, err := v2.Get[[]FactsResponse](
 						ctx,
 						client,
-						"https://cat-fact.herokuapp.com/facts",
+						"https://40ccde1b-9e7d-4930-9fa8-f24f460649e9.mock.pstmn.io/api/v1/course-schedule/active/46982328",
 						nil,
 						map[string]string{
 							"Content-Type": "application/json",
