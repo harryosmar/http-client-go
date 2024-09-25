@@ -29,9 +29,11 @@ func TestGet(t *testing.T) {
 
 	for _, tt := range testData {
 		t.Run(tt.name, func(t *testing.T) {
-			client := http_client_go.NewHttpClientRepository(&http.Client{
-				Timeout: 3 * time.Second,
-			}).EnableDebug()
+			client := http_client_go.NewHttpClientRepository(
+				&http.Client{
+					Timeout: 3 * time.Second,
+				},
+			).EnableDebug()
 			ctx := context.WithValue(context.TODO(), http_client_go.XRequestIdContext, uuid.New().String())
 
 			resp, err := client.Get(

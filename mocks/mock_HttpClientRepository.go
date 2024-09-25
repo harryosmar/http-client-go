@@ -12,6 +12,7 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	library_http_client_go "github.com/harryosmar/http-client-go"
+	ctx "github.com/harryosmar/http-client-go/ctx"
 )
 
 // MockHttpClientRepository is a mock of HttpClientRepository interface.
@@ -50,6 +51,21 @@ func (m *MockHttpClientRepository) Delete(arg0 context.Context, arg1 string, arg
 func (mr *MockHttpClientRepositoryMockRecorder) Delete(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockHttpClientRepository)(nil).Delete), arg0, arg1, arg2)
+}
+
+// DeleteX mocks base method.
+func (m *MockHttpClientRepository) DeleteX(arg0 context.Context, arg1 string, arg2 interface{}, arg3 map[string]string) (*library_http_client_go.Response, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteX", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].(*library_http_client_go.Response)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteX indicates an expected call of DeleteX.
+func (mr *MockHttpClientRepositoryMockRecorder) DeleteX(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteX", reflect.TypeOf((*MockHttpClientRepository)(nil).DeleteX), arg0, arg1, arg2, arg3)
 }
 
 // DisableDebug mocks base method.
@@ -138,4 +154,18 @@ func (m *MockHttpClientRepository) Put(arg0 context.Context, arg1 string, arg2 *
 func (mr *MockHttpClientRepositoryMockRecorder) Put(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Put", reflect.TypeOf((*MockHttpClientRepository)(nil).Put), arg0, arg1, arg2, arg3)
+}
+
+// SetLogger mocks base method.
+func (m *MockHttpClientRepository) SetLogger(arg0 ctx.LoggerCtx) library_http_client_go.HttpClientRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetLogger", arg0)
+	ret0, _ := ret[0].(library_http_client_go.HttpClientRepository)
+	return ret0
+}
+
+// SetLogger indicates an expected call of SetLogger.
+func (mr *MockHttpClientRepositoryMockRecorder) SetLogger(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetLogger", reflect.TypeOf((*MockHttpClientRepository)(nil).SetLogger), arg0)
 }
