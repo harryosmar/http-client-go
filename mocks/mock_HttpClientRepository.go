@@ -8,6 +8,7 @@ import (
 	bytes "bytes"
 	context "context"
 	url "net/url"
+	os "os"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -139,6 +140,21 @@ func (m *MockHttpClientRepository) PostFormUrlEncoded(arg0 context.Context, arg1
 func (mr *MockHttpClientRepositoryMockRecorder) PostFormUrlEncoded(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PostFormUrlEncoded", reflect.TypeOf((*MockHttpClientRepository)(nil).PostFormUrlEncoded), arg0, arg1, arg2, arg3)
+}
+
+// PostMultipart mocks base method.
+func (m *MockHttpClientRepository) PostMultipart(arg0 context.Context, arg1 string, arg2 *os.File, arg3 map[string]string) (*library_http_client_go.Response, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PostMultipart", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].(*library_http_client_go.Response)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PostMultipart indicates an expected call of PostMultipart.
+func (mr *MockHttpClientRepositoryMockRecorder) PostMultipart(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PostMultipart", reflect.TypeOf((*MockHttpClientRepository)(nil).PostMultipart), arg0, arg1, arg2, arg3)
 }
 
 // Put mocks base method.
