@@ -87,7 +87,7 @@ func (v httpClientRepository) PostMultipart(ctx context.Context, url string, fil
 	}
 
 	// Create the request
-	req, err := http.NewRequest("POST", url, &buf)
+	req, err := http.NewRequest(http.MethodPost, url, &buf)
 	if err != nil {
 		return nil, err
 	}
