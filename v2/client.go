@@ -8,6 +8,8 @@ import (
 	"fmt"
 	library_http_client_go "github.com/harryosmar/http-client-go"
 	"net/http"
+	url2 "net/url"
+	"os"
 )
 
 type (
@@ -121,6 +123,14 @@ func Post[ReqT any, ResT any](ctx context.Context, client library_http_client_go
 	}
 
 	return Send[*bytes.Buffer, ResT](ctx, url, buffer, headers, client.Post)
+}
+
+func PostFormUrlEncoded[ResT any](ctx context.Context, client library_http_client_go.HttpClientRepository, url string, payload url2.Values, headers map[string]string) (Response[ResT], error) {
+	return Send[url2.Values, ResT](ctx, url, payload, headers, client.PostFormUrlEncoded)
+}
+
+func PostMultipart[ResT any](ctx context.Context, client library_http_client_go.HttpClientRepository, url string, file *os.File, headers map[string]string) (Response[ResT], error) {
+	return Send[*os.File, ResT](ctx, url, file, headers, client.PostMultipart)
 }
 
 func PostRaw[ResT any](ctx context.Context, client library_http_client_go.HttpClientRepository, url string, payload []byte, headers map[string]string) (Response[ResT], error) {

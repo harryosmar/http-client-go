@@ -14,8 +14,8 @@ import (
 	"time"
 )
 
-func readImageFile(filename string) ([]byte, error) {
-	file, err := os.Open(filename)
+func readImageFileAsByte(filePath string) ([]byte, error) {
+	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +93,7 @@ func TestMethods(t *testing.T) {
 						}
 					)
 
-					content, err := readImageFile("./example.jpg")
+					content, err := readImageFileAsByte("./example.jpg")
 					if err != nil {
 						return nil, err
 					}
@@ -106,6 +106,46 @@ func TestMethods(t *testing.T) {
 						map[string]string{
 							"Content-Type": "image/jpeg",
 						},
+					)
+					if err != nil {
+						return nil, err
+					}
+					log.Infof("%+v", resp)
+					return resp, nil
+				},
+			},
+			expectedResult: "",
+		},
+		{
+			name: "Test Post Multipart method",
+			args: args{
+				fn: func(client http_client_go.HttpClientRepository) (any, error) {
+					type (
+						FaceDetectHttpClientResponse struct {
+							Faces []struct {
+								Coordinates struct {
+									Height int `json:"height"`
+									Width  int `json:"width"`
+									X      int `json:"x"`
+									Y      int `json:"y"`
+								} `json:"coordinates"`
+								EyesDetected bool `json:"eyes_detected"`
+							} `json:"faces"`
+						}
+					)
+
+					content, err := os.Open("./example.jpg")
+					if err != nil {
+						return nil, err
+					}
+
+					ctx := context.WithValue(context.TODO(), http_client_go.XRequestIdContext, uuid.New().String())
+					resp, err := v2.PostMultipart[FaceDetectHttpClientResponse](
+						ctx,
+						client.EnableDebug(),
+						"http://192.168.11.168:5003/detect_faces",
+						content,
+						nil,
 					)
 					if err != nil {
 						return nil, err

@@ -5,9 +5,12 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"github.com/harryosmar/http-client-go/ctx"
+	"io"
 	"io/ioutil"
+	"mime/multipart"
 	"net/http"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -21,6 +24,7 @@ type (
 		SetLogger(loggerCtx ctx.LoggerCtx) HttpClientRepository
 		Post(ctx context.Context, url string, payload *bytes.Buffer, headers map[string]string) (*Response, error)
 		PostFormUrlEncoded(ctx context.Context, url string, payload url.Values, headers map[string]string) (*Response, error)
+		PostMultipart(ctx context.Context, url string, file *os.File, headers map[string]string) (*Response, error)
 		Put(ctx context.Context, url string, payload *bytes.Buffer, headers map[string]string) (*Response, error)
 		Delete(ctx context.Context, url string, headers map[string]string) (*Response, error)
 		DeleteX(ctx context.Context, url string, data any, headers map[string]string) (*Response, error)
@@ -56,6 +60,44 @@ func (v httpClientRepository) Post(ctx context.Context, url string, body *bytes.
 		request,
 		func() string {
 			return body.String()
+		},
+		headers,
+	)
+}
+
+func (v httpClientRepository) PostMultipart(ctx context.Context, url string, file *os.File, headers map[string]string) (*Response, error) {
+	// Create a buffer to hold the multipart data
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+
+	// Create form file
+	formFile, err := writer.CreateFormFile("file", file.Name())
+	if err != nil {
+		return nil, err
+	}
+
+	// Stream the file directly into the form file
+	if _, err = io.Copy(formFile, file); err != nil {
+		return nil, err
+	}
+
+	// Close the writer to finalize the multipart form
+	if err = writer.Close(); err != nil {
+		return nil, err
+	}
+
+	// Create the request
+	req, err := http.NewRequest(http.MethodPost, url, &buf)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+
+	return v.do(
+		ctx,
+		req,
+		func() string {
+			return ""
 		},
 		headers,
 	)
