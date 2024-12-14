@@ -1,8 +1,6 @@
 ## Usage
 
-[![Latest Version](https://img.shields.io/github/release/harryosmar/http-client-go.svg?style=flat-square)](https://github.com/harryosmar/http-client-go/releases)
-
-![Build Status](https://github.com/harryosmar/http-client-go/actions/workflows/go-test.yml/badge.svg)
+[![Latest Version](https://img.shields.io/github/release/harryosmar/http-client-go.svg?style=flat-square)](https://github.com/harryosmar/http-client-go/releases) [![Build Status](https://github.com/harryosmar/http-client-go/actions/workflows/go-test.yml/badge.svg)](https://github.com/harryosmar/http-client-go/actions/workflows/go-test.yml)
 
 ```go
 package main
@@ -47,4 +45,3 @@ func main() {
 
 	log.Infof("resp %+v", resp)
 }
-```
