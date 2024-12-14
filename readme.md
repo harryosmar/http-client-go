@@ -2,6 +2,9 @@
 
 [![Latest Version](https://img.shields.io/github/release/harryosmar/http-client-go.svg?style=flat-square)](https://github.com/harryosmar/http-client-go/releases)
 
+[master]
+(https://github.com/harryosmar/http-client-go/actions/workflows/go-test.yml/badge.svg?branch=master)
+
 ```go
 package main
 
