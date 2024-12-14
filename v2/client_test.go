@@ -1,175 +1,63 @@
 package v2_test
 
 import (
-	"bufio"
 	"context"
-	"github.com/google/uuid"
-	http_client_go "github.com/harryosmar/http-client-go"
-	v2 "github.com/harryosmar/http-client-go/v2"
-	log "github.com/sirupsen/logrus"
-	"io"
+	"encoding/json"
 	"net/http"
-	"os"
 	"testing"
-	"time"
+
+	library_http_client_go "github.com/harryosmar/http-client-go"
+	v2 "github.com/harryosmar/http-client-go/v2" // Correct import path
 )
 
-func readImageFileAsByte(filePath string) ([]byte, error) {
-	file, err := os.Open(filePath)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	reader := bufio.NewReader(file)
-	data, err := io.ReadAll(reader)
-	if err != nil {
-		return nil, err
-	}
-
-	return data, nil
+// CatFact represents the structure of the cat fact response
+type CatFact struct {
+	Status struct {
+		Verified  bool `json:"verified"`
+		SentCount int  `json:"sentCount"`
+	} `json:"status"`
+	ID        string `json:"_id"`
+	User      string `json:"user"`
+	Text      string `json:"text"`
+	Version   int    `json:"__v"`
+	Source    string `json:"source"`
+	UpdatedAt string `json:"updatedAt"`
+	Type      string `json:"type"`
+	CreatedAt string `json:"createdAt"`
+	Deleted   bool   `json:"deleted"`
+	Used      bool   `json:"used"`
 }
 
-func TestMethods(t *testing.T) {
-	type args struct {
-		fn func(client http_client_go.HttpClientRepository) (any, error)
-	}
-	testData := []struct {
-		name           string
-		args           args
-		expectedResult string
-	}{
-		{
-			name: "Test Get method",
-			args: args{
-				fn: func(client http_client_go.HttpClientRepository) (any, error) {
-					type FactsResponse struct {
-						Status struct {
-							Verified  bool `json:"verified"`
-							SentCount int  `json:"sent_count"`
-						}
-						Id        string    `json:"_id"`
-						User      string    `json:"user"`
-						Text      string    `json:"text"`
-						UpdatedAt time.Time `json:"updated_at"`
-						CreatedAt time.Time `json:"created_at"`
-						Deleted   bool      `json:"deleted"`
-						Used      bool      `json:"used"`
-					}
-					ctx := context.WithValue(context.TODO(), http_client_go.XRequestIdContext, uuid.New().String())
-					resp, err := v2.Get[[]FactsResponse](
-						ctx,
-						client,
-						"https://40ccde1b-9e7d-4930-9fa8-f24f460649e9.mock.pstmn.io/api/v1/course-schedule/active/46982328",
-						nil,
-						map[string]string{
-							"Content-Type": "application/json",
-						},
-					)
-					if err != nil {
-						return nil, err
-					}
-					log.Infof("%+v", resp)
-					return resp, nil
-				},
-			},
-			expectedResult: "",
-		},
-		{
-			name: "Test Post method",
-			args: args{
-				fn: func(client http_client_go.HttpClientRepository) (any, error) {
-					type (
-						FaceDetectHttpClientResponse struct {
-							Faces []struct {
-								Coordinates struct {
-									Height int `json:"height"`
-									Width  int `json:"width"`
-									X      int `json:"x"`
-									Y      int `json:"y"`
-								} `json:"coordinates"`
-								EyesDetected bool `json:"eyes_detected"`
-							} `json:"faces"`
-						}
-					)
+// TestGetCatFacts tests the GET request to the Cat Facts API
+func TestGetCatFacts(t *testing.T) {
+	// Create context
+	ctx := context.Background()
 
-					content, err := readImageFileAsByte("./example.jpg")
-					if err != nil {
-						return nil, err
-					}
-					ctx := context.WithValue(context.TODO(), http_client_go.XRequestIdContext, uuid.New().String())
-					resp, err := v2.PostRaw[FaceDetectHttpClientResponse](
-						ctx,
-						client.DisableDebug(),
-						"http://192.168.11.168:8000/detect_faces",
-						content,
-						map[string]string{
-							"Content-Type": "image/jpeg",
-						},
-					)
-					if err != nil {
-						return nil, err
-					}
-					log.Infof("%+v", resp)
-					return resp, nil
-				},
-			},
-			expectedResult: "",
-		},
-		{
-			name: "Test Post Multipart method",
-			args: args{
-				fn: func(client http_client_go.HttpClientRepository) (any, error) {
-					type (
-						FaceDetectHttpClientResponse struct {
-							Faces []struct {
-								Coordinates struct {
-									Height int `json:"height"`
-									Width  int `json:"width"`
-									X      int `json:"x"`
-									Y      int `json:"y"`
-								} `json:"coordinates"`
-								EyesDetected bool `json:"eyes_detected"`
-							} `json:"faces"`
-						}
-					)
+	// Use the real HttpClientRepository
+	httpClientRepo := library_http_client_go.NewHttpClientRepository(&http.Client{})
 
-					content, err := os.Open("./example.jpg")
-					if err != nil {
-						return nil, err
-					}
-
-					ctx := context.WithValue(context.TODO(), http_client_go.XRequestIdContext, uuid.New().String())
-					resp, err := v2.PostMultipart[FaceDetectHttpClientResponse](
-						ctx,
-						client.EnableDebug(),
-						"http://192.168.11.168:5003/detect_faces",
-						content,
-						nil,
-					)
-					if err != nil {
-						return nil, err
-					}
-					log.Infof("%+v", resp)
-					return resp, nil
-				},
-			},
-			expectedResult: "",
-		},
+	// Use v2.Get to make a real HTTP GET request to the Cat Facts API
+	response, err := v2.Get[[]CatFact](ctx, httpClientRepo, "https://cat-fact.herokuapp.com/facts", nil, nil)
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+		return
 	}
 
-	for _, tt := range testData {
-		t.Run(tt.name, func(t *testing.T) {
-			client := http_client_go.NewHttpClientRepository(&http.Client{
-				Timeout: 5 * time.Second,
-			}).EnableDebug()
-			resp, err := tt.args.fn(client)
-			if err != nil {
-				s := err.Error()
-				log.Error(s)
-				return
-			}
-			log.Print(resp)
-		})
+	// Check if the status code is OK
+	if response.StatusCode != http.StatusOK {
+		t.Errorf("Expected status code 200, got %d", response.StatusCode)
+		return
+	}
+
+	actualResponse, err := json.Marshal(response.Content)
+	if err != nil {
+		t.Errorf("Expected no error, got %v", err)
+		return
+	}
+
+	expectedResponse := `[{"status":{"verified":true,"sentCount":1},"_id":"58e008780aac31001185ed05","user":"58e007480aac31001185ecef","text":"Owning a cat can reduce the risk of stroke and heart attack by a third.","__v":0,"source":"user","updatedAt":"2020-08-23T20:20:01.611Z","type":"cat","createdAt":"2018-03-29T20:20:03.844Z","deleted":false,"used":false},{"status":{"verified":true,"sentCount":1},"_id":"58e009390aac31001185ed10","user":"58e007480aac31001185ecef","text":"Most cats are lactose intolerant, and milk can cause painful stomach cramps and diarrhea. It's best to forego the milk and just give your cat the standard: clean, cool drinking water.","__v":0,"source":"user","updatedAt":"2020-08-23T20:20:01.611Z","type":"cat","createdAt":"2018-03-04T21:20:02.979Z","deleted":false,"used":false},{"status":{"verified":true,"sentCount":1},"_id":"588e746706ac2b00110e59ff","user":"588e6e8806ac2b00110e59c3","text":"Domestic cats spend about 70 percent of the day sleeping and 15 percent of the day grooming.","__v":0,"source":"user","updatedAt":"2020-08-26T20:20:02.359Z","type":"cat","createdAt":"2018-01-14T21:20:02.750Z","deleted":false,"used":true},{"status":{"verified":true,"sentCount":1},"_id":"58e008ad0aac31001185ed0c","user":"58e007480aac31001185ecef","text":"The frequency of a domestic cat's purr is the same at which muscles and bones repair themselves.","__v":0,"source":"user","updatedAt":"2020-08-24T20:20:01.867Z","type":"cat","createdAt":"2018-03-15T20:20:03.281Z","deleted":false,"used":true},{"status":{"verified":true,"sentCount":1},"_id":"58e007cc0aac31001185ecf5","user":"58e007480aac31001185ecef","text":"Cats are the most popular pet in the United States: There are 88 million pet cats and 74 million dogs.","__v":0,"source":"user","updatedAt":"2020-08-23T20:20:01.611Z","type":"cat","createdAt":"2018-03-01T21:20:02.713Z","deleted":false,"used":false}]`
+	if expectedResponse != string(actualResponse) {
+		t.Errorf("Expected response %s, got %s", expectedResponse, string(actualResponse))
+		return
 	}
 }
