@@ -137,6 +137,10 @@ func PostRaw[ResT any](ctx context.Context, client library_http_client_go.HttpCl
 	return Send[*bytes.Buffer, ResT](ctx, url, bytes.NewBuffer(payload), headers, client.Post)
 }
 
+func PostRawAndReturnBytes(ctx context.Context, client library_http_client_go.HttpClientRepository, url string, payload []byte, headers map[string]string) ([]byte, error) {
+	return SendAndReturnBytes[*bytes.Buffer](ctx, url, bytes.NewBuffer(payload), headers, client.Post)
+}
+
 func Put[ReqT any, ResT any](ctx context.Context, client library_http_client_go.HttpClientRepository, url string, payload ReqT, headers map[string]string) (Response[ResT], error) {
 	defaultReps := Response[ResT]{}
 	buffer, err := MarshalToBuffer[ReqT](payload)
