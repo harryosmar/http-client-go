@@ -187,3 +187,22 @@ func Send[ReqT any, ResT any](
 	defaultReps.Content = content
 	return defaultReps, nil
 }
+
+func SendAndReturnBytes[ReqT any](
+	ctx context.Context,
+	url string,
+	payload ReqT,
+	headers map[string]string,
+	fn func(ctx context.Context, url string, data ReqT, headers map[string]string) (*library_http_client_go.Response, error),
+) ([]byte, error) {
+	resp, err := fn(ctx, url, payload, headers)
+	if err != nil {
+		return nil, ErrToResponseError(err, resp)
+	}
+
+	if !(resp.Status >= 200 && resp.Status < 300) {
+		return nil, UnmarshalResponseToError(resp)
+	}
+
+	return resp.Content, nil
+}
